@@ -15,12 +15,12 @@ class QuestionService {
     return list.map((e) => Question.fromJson(e)).toList();
   }
 
-  /// Returns the question for a specific level
-  Future<Question> getQuestionForLevel(int level) async {
+  /// Returns all 10 questions for a specific level
+  Future<List<Question>> getQuestionsForLevel(int level) async {
     final all = await loadAll();
-    // Ensure level is within bounds
-    final index = (level - 1) % all.length;
-    return all[index];
+    // Filter questions by level
+    final levelQuestions = all.where((q) => q.level == level).toList();
+    return levelQuestions;
   }
 
   /// Returns up to [count] random questions (shuffled) from asset.

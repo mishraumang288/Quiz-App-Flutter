@@ -1,6 +1,6 @@
-# KBC-style Quiz (Flutter)
+# Air Force Quiz League (Flutter)
 
-This project adds a simple offline KBC-style quiz to the existing Flutter workspace.
+This project adds a simple offline Air Force Quiz League quiz to the existing Flutter workspace.
 
 Features added in `lib/`:
 - Local question data: `lib/assets/questions.json` (60 mixed questions of GK, Science, Tech)
@@ -26,7 +26,7 @@ Notes
 Next steps
 - Add more questions or a simple editor to maintain the question bank.
 - Add sounds, Lottie animations, lifelines (50:50), scoring/leaderboard persistence.
-# kbc_flutter
+# air_force_quiz_league
 
 A new Flutter project.
 

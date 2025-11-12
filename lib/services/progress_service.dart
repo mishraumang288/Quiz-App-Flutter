@@ -13,6 +13,7 @@ class ProgressData {
 class ProgressService {
   static const _keyUnlockedLevel = 'unlockedLevel';
   static const _keyScorePrefix = 'level_score_';
+  static const int questionsPerLevel = 10;
 
   Future<ProgressData> getProgress() async {
     final prefs = await SharedPreferences.getInstance();
@@ -20,7 +21,7 @@ class ProgressService {
     
     // Load all level scores
     final levelScores = <int, int>{};
-    for (var i = 1; i <= unlockedLevel; i++) {
+    for (var i = 1; i <= 50; i++) {
       final score = prefs.getInt('$_keyScorePrefix$i') ?? 0;
       if (score > 0) {
         levelScores[i] = score;
@@ -36,13 +37,16 @@ class ProgressService {
   Future<void> updateProgress(int level, int score) async {
     final prefs = await SharedPreferences.getInstance();
     
-    // Save the score for this level
-    await prefs.setInt('$_keyScorePrefix$level', score);
+    // Save the score for this level (score is out of 10)
+    final currentScore = prefs.getInt('$_keyScorePrefix$level') ?? 0;
+    if (score > currentScore) {
+      await prefs.setInt('$_keyScorePrefix$level', score);
+    }
 
-    // If passed (score = 1) and it's the current max level, unlock next
-    if (score == 1) {
+    // Unlock next level if current level is passed (score >= 5 out of 10)
+    if (score >= 5) {
       final currentUnlocked = prefs.getInt(_keyUnlockedLevel) ?? 1;
-      if (level == currentUnlocked) {
+      if (level == currentUnlocked && level < 50) {
         await prefs.setInt(_keyUnlockedLevel, level + 1);
       }
     }

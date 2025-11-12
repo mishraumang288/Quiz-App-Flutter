@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../models/question.dart';
 import '../services/question_service.dart';
 import '../services/progress_service.dart';
+import 'level_score_screen.dart';
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({super.key});
@@ -22,6 +23,7 @@ class _QuizScreenState extends State<QuizScreen>
   int _index = 0;
   int _score = 0;
   bool _loading = true;
+  List<bool> _answerResults = [];
 
   // timer
   static const int _initialTime = 20; // default 20 seconds per question
@@ -45,11 +47,13 @@ class _QuizScreenState extends State<QuizScreen>
   }
 
   Future<void> _loadQuestions() async {
-    final question = await _service.getQuestionForLevel(_currentLevel);
+    final questions = await _service.getQuestionsForLevel(_currentLevel);
     setState(() {
-      _questions = [question];
+      _questions = questions;
       _loading = false;
       _index = 0;
+      _score = 0;
+      _answerResults = [];
     });
     _startTimer();
   }
@@ -75,8 +79,9 @@ class _QuizScreenState extends State<QuizScreen>
     setState(() {
       _answered = true;
       _selectedIndex = null;
+      _answerResults.add(false);
     });
-    _finishLevel(passed: false);
+    _moveToNextQuestion();
   }
 
   void _selectOption(int i) {
@@ -90,61 +95,43 @@ class _QuizScreenState extends State<QuizScreen>
       _selectedIndex = i;
       _answered = true;
       if (correct) _score += 1;
+      _answerResults.add(correct);
     });
-    _finishLevel(passed: correct);
+    _moveToNextQuestion();
   }
 
-  Future<void> _finishLevel({required bool passed}) async {
-    // Save progress
-    await _progress.updateProgress(_currentLevel, passed ? 1 : 0);
-    
-    // Show result after a brief delay
-    Future.delayed(const Duration(milliseconds: 800), () {
+  void _moveToNextQuestion() {
+    Future.delayed(const Duration(milliseconds: 1000), () {
       if (!mounted) return;
-      _showResult(passed: passed);
+      if (_index + 1 < _questions.length) {
+        // Move to next question
+        setState(() {
+          _index += 1;
+          _selectedIndex = null;
+          _answered = false;
+        });
+        _startTimer();
+      } else {
+        // Finished all questions in this level
+        _finishLevel();
+      }
     });
   }
 
-  void _showResult({required bool passed}) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(passed ? 'Level Complete!' : 'Try Again'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              passed ? Icons.star_rounded : Icons.refresh_rounded,
-              size: 64,
-              color: passed ? Colors.amber : Colors.grey,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              passed
-                  ? 'Congratulations! You\'ve completed Level $_currentLevel!'
-                  : 'Keep practicing to pass Level $_currentLevel',
-              textAlign: TextAlign.center,
-            ),
-          ],
+  Future<void> _finishLevel() async {
+    // Save progress
+    await _progress.updateProgress(_currentLevel, _score);
+    
+    // Navigate to score screen
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => LevelScoreScreen(
+          level: _currentLevel,
+          score: _score,
+          totalQuestions: _questions.length,
+          answerResults: _answerResults,
         ),
-        actions: [
-          if (!passed)
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _restart();
-              },
-              child: const Text('Try Again'),
-            ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pushReplacementNamed('/levels');
-            },
-            child: const Text('Back to Levels'),
-          ),
-        ],
       ),
     );
   }
@@ -155,6 +142,7 @@ class _QuizScreenState extends State<QuizScreen>
       _questions = [];
       _index = 0;
       _score = 0;
+      _answerResults = [];
       _selectedIndex = null;
       _answered = false;
     });
@@ -171,7 +159,7 @@ class _QuizScreenState extends State<QuizScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('KBC - Quiz'),
+  title: const Text('Air Force Quiz League'),
         centerTitle: true,
       ),
       body: _loading
@@ -206,7 +194,8 @@ class _QuizScreenState extends State<QuizScreen>
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('Level ${_index + 1} / $total'),
+            Text('Level $_currentLevel'),
+            Text('Question ${_index + 1} / $total'),
             Text('Score: $_score'),
           ],
         ),

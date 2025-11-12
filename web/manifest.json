@@ -1,6 +1,6 @@
 {
-    "name": "kbc_flutter",
-    "short_name": "kbc_flutter",
+    "name": "Air Force Quiz League",
+    "short_name": "AF Quiz League",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

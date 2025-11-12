@@ -4,6 +4,7 @@ class Question {
   final List<String> options;
   final int answerIndex;
   final String category;
+  final int level;
 
   Question({
     required this.id,
@@ -11,6 +12,7 @@ class Question {
     required this.options,
     required this.answerIndex,
     required this.category,
+    required this.level,
   });
 
   factory Question.fromJson(Map<String, dynamic> j) => Question(
@@ -19,6 +21,7 @@ class Question {
         options: List<String>.from(j['options'] as List<dynamic>),
         answerIndex: j['answerIndex'] as int,
         category: j['category'] as String,
+        level: j['level'] as int,
       );
 
   Map<String, dynamic> toJson() => {
@@ -27,5 +30,6 @@ class Question {
         'options': options,
         'answerIndex': answerIndex,
         'category': category,
+        'level': level,
       };
 }
