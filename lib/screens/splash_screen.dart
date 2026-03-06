@@ -104,17 +104,19 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           ).createShader(bounds),
                           child: const Text(
                             'Air Force Quiz League',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 42,
+                              fontSize: 36,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
-                              letterSpacing: 2,
+                              letterSpacing: 1,
                             ),
                           ),
                         ),
                         const SizedBox(height: 12),
                         const Text(
                           'Test Your Knowledge!',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 18,
                             color: Colors.white70,
